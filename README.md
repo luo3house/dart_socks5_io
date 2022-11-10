@@ -23,23 +23,20 @@ final proxySocket = await RawSocket.connect(InternetAddress.loopbackIPv4, 10000)
 final socks5 = Socks5Client(proxySocket);
 
 // Request for connecting to a remote server
-socks5.connect("www3.okin-jp.net", 25565).then((_) {
+socks5.connect("example.org", 25565).then((_) {
 
   // Now the tunnel is ready, any data sent will be transfer via tunnel
 
   // Listen upstream data
   socks5.dataStream.listen((buffer) {
     // Uint8List
-  })
+  });
 
   // OK, Because socks5 client completely did the handshake job
   proxySocket.write([1,2,3]);
 
   // OK, Because socks5.write is an alias of socket.write
   socks5.write([4,5,6]);
-
-  // OK, socks5 supports StreamConsumer
-  anotherSocket.pipe(socks5);
 
   // DO NOT listen source socket data, it is intercepted by socks5
   // proxySocket.listen(...)
@@ -49,13 +46,40 @@ socks5.connect("www3.okin-jp.net", 25565).then((_) {
 });
 ```
 
+## Example for tunneling tcp over socks5
+
+Assume the following case:
+
+- Local server: `0.0.0.0:8080`
+- Socks5 proxy: `127.0.0.1:7890`
+- Target server: `google.com:80`
+
+```dart
+final localServer = await ServerSocket.bind(InternetAddress.anyIPv4, 8080);
+
+localServer.listen((Socket client) async {
+  final proxySocket = await RawSocket.connect("127.0.0.1", 7890);
+  final socks5 = Socks5Client(proxySocket);
+  socks5.connect("google.com", 80).then((_) {
+    // socks5 -> client
+    socks5.dataStream.map((buffer) => List<int>.from(buffer)).pipe(client);
+    // client -> socks5
+    client.pipe(socks5);
+  }).catchError((err) {
+    client.close();
+  });
+});
+```
+
+Reference in Go: [golang: tunnel tcp over socks5](https://gist.github.com/jiahuif/5114abf068ee07bdf0e38d2cd29601f3)
+
 ## Acknowledgement
 
 - Golang Code Reference `golang.org/x/net`.
 
 - [Pub Package `socks5`](https://pub.dev/packages/socks5)
 
-  It is not null safety
+  But it is not null safety
 
 ## LICENSE
 
