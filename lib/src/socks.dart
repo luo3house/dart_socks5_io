@@ -4,7 +4,6 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 const version5 = 0x05;
 
@@ -89,17 +88,17 @@ class Protocol {
         buffer.add(method.value);
       }
     }
-    return Uint8List.fromList(buffer);
+    return buffer;
   }
 
-  static decodeAuthResponse(Uint8List buffer) {
+  static decodeAuthResponse(List<int> buffer) {
     // length 2
     final version = buffer[0];
     final authMethod = buffer[1];
     if (version != version5) {
-      throw 'unexpected prootcol version ${version}';
+      throw 'auth failed: unexpected protocol version ${version}';
     } else if (authMethod == AuthMethod.noAcceptableMethods.value) {
-      throw 'no acceptable auth method';
+      throw 'auth failed: no acceptable auth method';
     }
   }
 
@@ -110,7 +109,7 @@ class Protocol {
     if (addr == null) {
       final domain = targetHost;
       if (domain.length > 255) {
-        throw 'domain too long';
+        throw 'command failed: domain too long';
       }
       buffer.addAll([
         AddrType.domain.value,
@@ -128,21 +127,21 @@ class Protocol {
       (targetPort >> 8) & 0xff,
       targetPort & 0xff,
     ]);
-    return Uint8List.fromList(buffer);
+    return buffer;
   }
 
-  static decodeCommandResponse(Uint8List buffer) {
+  static decodeCommandResponse(List<int> buffer) {
     // length 4 + ip bytes
     final version = buffer[0];
     final cmdResult = buffer[1];
     final reserved = buffer[2];
     final addrType = buffer[3];
     if (version != version5) {
-      throw 'unexpected prootcol version ${version}';
+      throw 'command failed: unexpected protocol version ${version}';
     } else if (cmdResult != CmdResult.statusSuccess.value) {
-      throw 'unknown error ${CmdResult.toCodeString(cmdResult)}';
+      throw 'command failed: unknown error ${CmdResult.toCodeString(cmdResult)}';
     } else if (reserved != 0) {
-      throw 'non-zero reserved field: ${reserved}';
+      throw 'command failed: non-zero reserved field: ${reserved}';
     }
   }
 }
