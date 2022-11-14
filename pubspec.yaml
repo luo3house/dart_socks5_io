@@ -1,6 +1,6 @@
 name: socks5_io
 description: IO-based socks5 library
-version: 0.1.0
+version: 0.2.0
 homepage: https://github.com/luo3house/dart_socks5_io
 
 environment:

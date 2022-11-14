@@ -4,9 +4,11 @@ import 'socks.dart';
 
 enum _State { ready, connecting, connected }
 
-/// Socks5 client state
+/// The state perform socks5 client handshake work
 ///
-/// For socket using, use [Socks5ClientSocket] instead.
+/// Once connected to remote, the state should NOT handle anything at all.
+///
+/// For socket example, see [Socks5ClientDialer].
 class Socks5ClientState {
   final Future Function(List<int> buffer) write;
   final List<AuthMethod> authMethods;

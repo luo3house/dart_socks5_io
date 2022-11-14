@@ -8,7 +8,7 @@ main() async {
   final List<dynamic> proxy = ["127.0.0.1", 7890];
   final List<dynamic> target = ["example.org", 80];
 
-  final dialer = Socks5ClientSocketDialer(proxy[0], proxy[1]);
+  final dialer = Socks5ClientDialer(proxy[0], proxy[1]);
   dialer.connect(target[0], target[1]).then((SocketLike socks5) {
     final completer = Completer();
 

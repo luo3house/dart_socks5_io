@@ -2,7 +2,7 @@
 
 [![Pub Version](https://img.shields.io/pub/v/socks5_io)](https://pub.dev/packages/socks5_io)
 
-IO based socks5 implementation at dartlang.
+IO based socks5 implementation written in dart.
 
 ## Install
 
@@ -10,16 +10,13 @@ Add dependency to `pubspec.yaml`.
 
 ```yaml
 dependencies:
-  socks5_io: ^0.1.0
+  socks5_io: ^0.2.0
 ```
 
 ## Quick Start
 
 ```dart
-final List<dynamic> proxy = ["127.0.0.1", 7890];
-final List<dynamic> target = ["example.org", 80];
-
-final dialer = Socks5ClientSocketDialer("127.0.0.1", 7890);
+final dialer = Socks5ClientDialer("127.0.0.1", 7890);
 dialer.connect("example.org", 80).then((socks5) {
 
   // handle remote server response
@@ -35,7 +32,7 @@ dialer.connect("example.org", 80).then((socks5) {
   socks5.getWriter().add(ascii.encode([
     "GET / HTTP/1.1",
     "Host: example.org:80",
-    "User-Agent: socks5_io/0.1.0",
+    "User-Agent: socks5_io/0.2.0",
     "Accept: */*",
     "\r\n",
   ].join("\r\n")));
@@ -43,7 +40,7 @@ dialer.connect("example.org", 80).then((socks5) {
 }).catchError((err) {/* handle connect error */});
 ```
 
-See more at folder `example/`.
+See more at folder [`example/`](example/).
 
 ## Acknowledgement
 

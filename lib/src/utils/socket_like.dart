@@ -5,6 +5,11 @@ import 'dart:typed_data';
 import 'simple_sink.dart';
 import 'read_writer.dart';
 
+/// Describe a class act like a socket
+///
+/// May be a wrapped [RawSocket], or [Socket]
+///
+/// SocketLike can be piped, e.g. anotherStream.pipe(socketLike)
 abstract class SocketLike
     implements ReadWriter<List<int>, List<int>>, StreamConsumer<List<int>> {
   factory SocketLike.wrapRawSocket(RawSocket socket) {
@@ -35,7 +40,7 @@ abstract class SocketLike
         }
       },
     );
-    final rw = ReadWriter<List<int>, List<int>>(
+    final rw = ReadWriter.rw<List<int>, List<int>>(
       reader: readerSource.stream,
       writer: SimpleSink(
         addImpl: (buffer) => socket.write(buffer),
@@ -59,7 +64,7 @@ abstract class SocketLike
 
   factory SocketLike.wrapSocket(Socket socket) {
     final readerStream = socket.asBroadcastStream();
-    final rw = ReadWriter<List<int>, List<int>>(
+    final rw = ReadWriter.rw<List<int>, List<int>>(
       reader: readerStream,
       writer: SimpleSink(
         addImpl: (buffer) => socket.add(buffer),
@@ -100,8 +105,6 @@ abstract class SocketLike
   @override
   close();
 }
-
-_notImplemented([dynamic]) => throw UnimplementedError("not implemented");
 
 class _SimpleSocketLike implements SocketLike {
   final Stream<List<int>> Function() getReaderImpl;

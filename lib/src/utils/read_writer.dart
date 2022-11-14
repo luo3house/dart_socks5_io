@@ -1,12 +1,15 @@
 import 'dart:async';
 
+/// A ReadWriter holds a reader stream and closable writer
 abstract class ReadWriter<In, Out> {
-  factory ReadWriter({
+  static rw<In, Out>({
     required Stream<In> reader,
     required Sink<Out> writer,
   }) =>
       _SimpleReadWriter(reader: reader, writer: writer);
+
   Stream<In> getReader();
+
   Sink<Out> getWriter();
 }
 

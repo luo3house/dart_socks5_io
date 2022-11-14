@@ -12,7 +12,7 @@ main() async {
 
   final localServer = await ServerSocket.bind(local[0], local[1]);
   localServer.listen((Socket client) async {
-    final proxyDialer = Socks5ClientSocketDialer(proxy[0], proxy[1]);
+    final proxyDialer = Socks5ClientDialer(proxy[0], proxy[1]);
 
     proxyDialer.connect(target[0], target[1]).then((socks5Socket) {
       // socks5 -> client
