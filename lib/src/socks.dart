@@ -17,7 +17,7 @@ enum Command {
 }
 
 enum AuthMethod {
-  notRequired(0x01),
+  notRequired(0x00),
   usernamePassword(0x02),
   noAcceptableMethods(0xff);
 
