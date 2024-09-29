@@ -24,8 +24,8 @@ class Socks5ClientDialer {
   });
 
   Future<SocketLike> connect(String remoteHost, int remotePort) async {
-    late RawSocket socket;
-    late StreamSubscription stateSub;
+    RawSocket? socket;
+    StreamSubscription? stateSub;
     try {
       // RawSocket
       socket = await RawSocket.connect(proxyHost, proxyPort);
@@ -49,9 +49,7 @@ class Socks5ClientDialer {
 
       return wrappedSocket;
     } catch (err) {
-      // ignore: unnecessary_null_comparison
-      if (socket != null) socket.close();
-      // ignore: unnecessary_null_comparison
+      if (socket != null) await socket.close();
       if (stateSub != null) await stateSub.cancel();
       rethrow;
     }
