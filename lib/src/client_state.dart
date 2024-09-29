@@ -14,7 +14,7 @@ class Socks5ClientState {
   final List<AuthMethod> authMethods;
   final Command command = Command.connect;
   var _state = _State.ready;
-  var _readResponse = Completer<List<int>>();
+  Completer<List<int>>? _readResponse;
 
   Socks5ClientState({
     required this.write,
@@ -23,19 +23,20 @@ class Socks5ClientState {
 
   bool get connected => _state == _State.connected;
 
-  _waitForResponse() {
-    _readResponse = Completer();
-    return _readResponse.future;
+  // protected
+  waitForResponse() {
+    final completer = _readResponse = Completer();
+    return completer.future.whenComplete(() => _readResponse = null);
   }
 
   notifyData(List<int> buffer) {
-    if (connected || _readResponse.isCompleted) return;
-    _readResponse.complete(buffer);
+    if (connected) return;
+    _readResponse?.complete(buffer);
   }
 
   notifyError(Object error, [StackTrace? trace]) {
-    if (connected || _readResponse.isCompleted) return;
-    _readResponse.completeError(error, trace);
+    if (connected) return;
+    _readResponse?.completeError(error, trace);
   }
 
   Future connect(String targetHost, int targetPort) async {
@@ -51,15 +52,15 @@ class Socks5ClientState {
       List<int> buffer;
       // 1. write auth request
       write(Protocol.encodeAuthRequest(authMethods));
-      buffer = await _waitForResponse();
+      buffer = await waitForResponse();
       Protocol.decodeAuthResponse(buffer);
       // 2. write command request
       write(Protocol.encodeCommandRequest(targetHost, targetPort, command));
-      buffer = await _waitForResponse();
+      buffer = await waitForResponse();
       _state = _State.connected;
-      return this;
     } catch (protocolErr) {
       _state = _State.ready;
+      _readResponse = null;
       rethrow;
     }
   }

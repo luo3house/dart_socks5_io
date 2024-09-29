@@ -74,7 +74,7 @@ enum CmdResult {
 }
 
 class Protocol {
-  static encodeAuthRequest(List<AuthMethod> authMethods) {
+  static List<int> encodeAuthRequest(List<AuthMethod> authMethods) {
     final buffer = <int>[];
     buffer.add(version5);
     if (authMethods.isEmpty) {
@@ -91,7 +91,7 @@ class Protocol {
     return buffer;
   }
 
-  static decodeAuthResponse(List<int> buffer) {
+  static AuthMethod decodeAuthResponse(List<int> buffer) {
     // length 2
     final version = buffer[0];
     final authMethod = buffer[1];
@@ -99,10 +99,13 @@ class Protocol {
       throw 'auth failed: unexpected protocol version ${version}';
     } else if (authMethod == AuthMethod.noAcceptableMethods.value) {
       throw 'auth failed: no acceptable auth method';
+    } else {
+      return AuthMethod.values.where((e) => e.value == authMethod).first;
     }
   }
 
-  static encodeCommandRequest(String targetHost, int targetPort, Command cmd) {
+  static List<int> encodeCommandRequest(
+      String targetHost, int targetPort, Command cmd) {
     final buffer = <int>[];
     buffer.addAll([version5, cmd.value, 0]);
     final addr = InternetAddress.tryParse(targetHost);
